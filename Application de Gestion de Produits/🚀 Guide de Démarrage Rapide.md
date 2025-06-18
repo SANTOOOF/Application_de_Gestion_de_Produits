@@ -1,4 +1,4 @@
-# 🚀 Guide de Démarrage Rapide
+#  Guide de Démarrage Rapide
 
 ## Démarrage en 3 étapes
 
