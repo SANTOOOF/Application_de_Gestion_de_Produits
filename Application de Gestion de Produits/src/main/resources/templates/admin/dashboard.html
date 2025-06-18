@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Tableau de Bord Administrateur</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- En-tête de la page -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-speedometer2"></i> Tableau de Bord Administrateur
+                </h1>
+                <p class="text-muted mb-0">Vue d'ensemble du système</p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="/admin/users" class="btn btn-outline-primary">
+                    <i class="bi bi-people"></i> Utilisateurs
+                </a>
+                <a href="/admin/reports" class="btn btn-outline-info">
+                    <i class="bi bi-graph-up"></i> Rapports
+                </a>
+            </div>
+        </div>
+
+        <!-- Cartes de statistiques principales -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="${totalProducts}"></h4>
+                                <p class="card-text">Produits Total</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-box-seam display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="${availableProducts}"></h4>
+                                <p class="card-text">Produits Disponibles</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-check-circle display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="${outOfStockProducts}"></h4>
+                                <p class="card-text">Ruptures de Stock</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-exclamation-triangle display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="'€' + ${#numbers.formatDecimal(totalStockValue, 1, 2)}"></h4>
+                                <p class="card-text">Valeur du Stock</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-currency-euro display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques des utilisateurs -->
+        <div class="row mb-4">
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="${totalUsers}"></h4>
+                                <p class="card-text">Utilisateurs Total</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-people display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="card text-white bg-dark">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title" th:text="${activeUsers}"></h4>
+                                <p class="card-text">Utilisateurs Actifs</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-person-check display-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Graphique des produits par catégorie -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-pie-chart"></i> Produits par Catégorie
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Graphique des utilisateurs par rôle -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bar-chart"></i> Utilisateurs par Rôle
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="roleChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Produits les plus chers -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-gem"></i> Produits les Plus Chers
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Prix</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="product : ${expensiveProducts}">
+                                        <td>
+                                            <a th:href="@{/products/{id}(id=${product.id})}" 
+                                               class="text-decoration-none" th:text="${product.name}"></a>
+                                        </td>
+                                        <td class="text-success fw-bold" 
+                                            th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${product.quantity > 10} ? 'bg-success' : (${product.quantity > 0} ? 'bg-warning' : 'bg-danger')"
+                                                  th:text="${product.quantity}"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Produits en stock faible -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-exclamation-triangle text-warning"></i> Stock Faible
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="product : ${lowStockProducts}">
+                                        <td>
+                                            <a th:href="@{/products/{id}(id=${product.id})}" 
+                                               class="text-decoration-none" th:text="${product.name}"></a>
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${product.quantity == 0} ? 'bg-danger' : 'bg-warning'"
+                                                  th:text="${product.quantity}"></span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/products/{id}/edit(id=${product.id})}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts pour les graphiques -->
+    <div layout:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script th:inline="javascript">
+            // Données pour le graphique des catégories
+            const categoryData = /*[[${productsByCategory}]]*/ {};
+            const categoryLabels = Object.keys(categoryData);
+            const categoryValues = Object.values(categoryData);
+            
+            // Graphique des produits par catégorie
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryValues,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Données pour le graphique des rôles
+            const roleData = /*[[${usersByRole}]]*/ {};
+            const roleLabels = Object.keys(roleData);
+            const roleValues = Object.values(roleData);
+            
+            // Graphique des utilisateurs par rôle
+            const roleCtx = document.getElementById('roleChart').getContext('2d');
+            new Chart(roleCtx, {
+                type: 'bar',
+                data: {
+                    labels: roleLabels,
+                    datasets: [{
+                        label: 'Nombre d\'utilisateurs',
+                        data: roleValues,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56'
+                        ],
+                        borderColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+

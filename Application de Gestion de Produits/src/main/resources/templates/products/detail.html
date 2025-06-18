@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title th:text="'Détails - ' + ${product.name}"></title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- En-tête de la page -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-eye"></i> Détails du Produit
+                </h1>
+                <p class="text-muted mb-0" th:text="'ID: ' + ${product.id}"></p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="/products" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+                <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Modifier
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Image et informations principales -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="position-relative">
+                        <img th:src="${product.imageUrl}" 
+                             th:alt="${product.name}" 
+                             class="card-img-top"
+                             style="height: 400px; object-fit: cover;"
+                             onerror="this.src='https://via.placeholder.com/400x400?text=Image+Non+Disponible'">
+                        
+                        <!-- Badge de disponibilité -->
+                        <span class="position-absolute top-0 end-0 m-3">
+                            <span th:if="${product.isAvailable}" class="badge bg-success fs-6">
+                                <i class="bi bi-check-circle"></i> Disponible
+                            </span>
+                            <span th:unless="${product.isAvailable}" class="badge bg-danger fs-6">
+                                <i class="bi bi-x-circle"></i> Indisponible
+                            </span>
+                        </span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h2 class="card-title" th:text="${product.name}"></h2>
+                        <p class="text-muted mb-3">
+                            <i class="bi bi-tag"></i> <span th:text="${product.category}"></span>
+                        </p>
+                        
+                        <!-- Prix -->
+                        <div class="price-tag mb-3" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></div>
+                        
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <h6><i class="bi bi-card-text"></i> Description</h6>
+                            <p class="card-text" th:text="${product.description ?: 'Aucune description disponible'}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informations détaillées -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle"></i> Informations Détaillées
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Informations en tableau -->
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-hash text-primary"></i> ID
+                                        </td>
+                                        <td th:text="${product.id}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-tag text-primary"></i> Nom
+                                        </td>
+                                        <td th:text="${product.name}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-tags text-primary"></i> Catégorie
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${product.category}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-currency-euro text-primary"></i> Prix
+                                        </td>
+                                        <td>
+                                            <span class="fs-5 fw-bold text-success" 
+                                                  th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-box text-primary"></i> Quantité
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${product.quantity > 10} ? 'bg-success' : (${product.quantity > 0} ? 'bg-warning' : 'bg-danger')"
+                                                  th:text="${product.quantity} + ' unité(s)'"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-toggle-on text-primary"></i> Statut
+                                        </td>
+                                        <td>
+                                            <span th:if="${product.isAvailable}" class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Disponible
+                                            </span>
+                                            <span th:unless="${product.isAvailable}" class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> Indisponible
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-calendar-plus text-primary"></i> Créé le
+                                        </td>
+                                        <td th:text="${#temporals.format(product.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                    <tr th:if="${product.updatedAt != null}">
+                                        <td class="fw-bold">
+                                            <i class="bi bi-calendar-check text-primary"></i> Modifié le
+                                        </td>
+                                        <td th:text="${#temporals.format(product.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Actions rapides -->
+                        <div class="mt-4">
+                            <h6><i class="bi bi-lightning"></i> Actions Rapides</h6>
+                            <div class="d-grid gap-2">
+                                <form th:action="@{/products/{id}/toggle-availability(id=${product.id})}" 
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn w-100" 
+                                            th:classappend="${product.isAvailable} ? 'btn-outline-warning' : 'btn-outline-success'">
+                                        <i class="bi bi-toggle-on" th:if="${product.isAvailable}"></i>
+                                        <i class="bi bi-toggle-off" th:unless="${product.isAvailable}"></i>
+                                        <span th:text="${product.isAvailable} ? 'Marquer comme indisponible' : 'Marquer comme disponible'"></span>
+                                    </button>
+                                </form>
+                                
+                                <form th:action="@{/products/{id}/delete(id=${product.id})}" 
+                                      method="post" class="d-inline"
+                                      th:onsubmit="'return confirmDelete(\'' + ${product.name} + '\')'">
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-trash"></i> Supprimer le produit
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiques et informations supplémentaires -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-graph-up"></i> Informations Complémentaires
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3 class="mb-1" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></h3>
+                                    <p class="mb-0">Prix Unitaire</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3 class="mb-1" th:text="${product.quantity}"></h3>
+                                    <p class="mb-0">En Stock</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3 class="mb-1" th:text="'€' + ${#numbers.formatDecimal(product.price * product.quantity, 1, 2)}"></h3>
+                                    <p class="mb-0">Valeur Totale</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3 class="mb-1">
+                                        <i class="bi bi-check-circle" th:if="${product.isAvailable}"></i>
+                                        <i class="bi bi-x-circle" th:unless="${product.isAvailable}"></i>
+                                    </h3>
+                                    <p class="mb-0">Disponibilité</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

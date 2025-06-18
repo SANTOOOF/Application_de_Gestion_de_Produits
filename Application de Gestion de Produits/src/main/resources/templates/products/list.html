@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Liste des Produits</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- En-tête de la page -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-box-seam"></i> Gestion des Produits
+                </h1>
+                <p class="text-muted mb-0" th:text="'Total: ' + ${totalElements} + ' produit(s)'"></p>
+            </div>
+            <a href="/products/new" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Nouveau Produit
+            </a>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="search-box">
+            <form method="get" action="/products" class="row g-3">
+                <!-- Recherche par mot-clé -->
+                <div class="col-md-4">
+                    <label for="keyword" class="form-label">
+                        <i class="bi bi-search"></i> Rechercher
+                    </label>
+                    <input type="text" class="form-control" id="keyword" name="keyword" 
+                           th:value="${keyword}" placeholder="Nom ou description...">
+                </div>
+                
+                <!-- Filtre par catégorie -->
+                <div class="col-md-3">
+                    <label for="category" class="form-label">
+                        <i class="bi bi-tags"></i> Catégorie
+                    </label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">Toutes les catégories</option>
+                        <option th:each="cat : ${categories}" 
+                                th:value="${cat}" 
+                                th:text="${cat}"
+                                th:selected="${cat == category}"></option>
+                    </select>
+                </div>
+                
+                <!-- Filtre par prix minimum -->
+                <div class="col-md-2">
+                    <label for="minPrice" class="form-label">
+                        <i class="bi bi-currency-euro"></i> Prix min
+                    </label>
+                    <input type="number" class="form-control" id="minPrice" name="minPrice" 
+                           th:value="${minPrice}" step="0.01" min="0" placeholder="0.00">
+                </div>
+                
+                <!-- Filtre par prix maximum -->
+                <div class="col-md-2">
+                    <label for="maxPrice" class="form-label">
+                        <i class="bi bi-currency-euro"></i> Prix max
+                    </label>
+                    <input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+                           th:value="${maxPrice}" step="0.01" min="0" placeholder="999.99">
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <div class="btn-group" role="group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="/products" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Options de tri -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="btn-group" role="group">
+                <a th:href="@{/products(sortBy='name', sortDir=${reverseSortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}" 
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-sort-alpha-down" th:if="${sortBy == 'name' and sortDir == 'asc'}"></i>
+                    <i class="bi bi-sort-alpha-up" th:if="${sortBy == 'name' and sortDir == 'desc'}"></i>
+                    <i class="bi bi-sort-alpha-down" th:unless="${sortBy == 'name'}"></i>
+                    Nom
+                </a>
+                <a th:href="@{/products(sortBy='price', sortDir=${reverseSortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}" 
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-sort-numeric-down" th:if="${sortBy == 'price' and sortDir == 'asc'}"></i>
+                    <i class="bi bi-sort-numeric-up" th:if="${sortBy == 'price' and sortDir == 'desc'}"></i>
+                    <i class="bi bi-sort-numeric-down" th:unless="${sortBy == 'price'}"></i>
+                    Prix
+                </a>
+                <a th:href="@{/products(sortBy='category', sortDir=${reverseSortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}" 
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-sort-alpha-down" th:if="${sortBy == 'category' and sortDir == 'asc'}"></i>
+                    <i class="bi bi-sort-alpha-up" th:if="${sortBy == 'category' and sortDir == 'desc'}"></i>
+                    <i class="bi bi-sort-alpha-down" th:unless="${sortBy == 'category'}"></i>
+                    Catégorie
+                </a>
+            </div>
+            
+            <div class="text-muted">
+                <span th:text="'Page ' + (${currentPage} + 1) + ' sur ' + ${totalPages}"></span>
+            </div>
+        </div>
+
+        <!-- Liste des produits -->
+        <div class="row" th:if="${not #lists.isEmpty(products)}">
+            <div class="col-lg-4 col-md-6 mb-4" th:each="product : ${products}">
+                <div class="card h-100">
+                    <!-- Image du produit -->
+                    <div class="position-relative">
+                        <img th:src="${product.imageUrl}" 
+                             th:alt="${product.name}" 
+                             class="card-img-top product-image"
+                             onerror="this.src='https://via.placeholder.com/300x200?text=Image+Non+Disponible'">
+                        
+                        <!-- Badge de disponibilité -->
+                        <span class="position-absolute top-0 end-0 m-2">
+                            <span th:if="${product.isAvailable}" class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Disponible
+                            </span>
+                            <span th:unless="${product.isAvailable}" class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> Indisponible
+                            </span>
+                        </span>
+                        
+                        <!-- Badge de quantité -->
+                        <span class="position-absolute bottom-0 start-0 m-2">
+                            <span class="badge bg-info">
+                                <i class="bi bi-box"></i> <span th:text="${product.quantity}"></span>
+                            </span>
+                        </span>
+                    </div>
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Nom et catégorie -->
+                        <h5 class="card-title" th:text="${product.name}"></h5>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-tag"></i> <span th:text="${product.category}"></span>
+                        </p>
+                        
+                        <!-- Description -->
+                        <p class="card-text flex-grow-1" th:text="${product.description}"></p>
+                        
+                        <!-- Prix -->
+                        <div class="price-tag mb-3" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="btn-group w-100" role="group">
+                            <a th:href="@{/products/{id}(id=${product.id})}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a th:href="@{/products/{id}/edit(id=${product.id})}" 
+                               class="btn btn-outline-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form th:action="@{/products/{id}/toggle-availability(id=${product.id})}" 
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-toggle-on" th:if="${product.isAvailable}"></i>
+                                    <i class="bi bi-toggle-off" th:unless="${product.isAvailable}"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{/products/{id}/delete(id=${product.id})}" 
+                                  method="post" class="d-inline"
+                                  th:onsubmit="'return confirmDelete(\'' + ${product.name} + '\')'">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message si aucun produit -->
+        <div th:if="${#lists.isEmpty(products)}" class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted">Aucun produit trouvé</h3>
+            <p class="text-muted">
+                <span th:if="${keyword}">Aucun produit ne correspond à votre recherche.</span>
+                <span th:unless="${keyword}">Commencez par ajouter votre premier produit.</span>
+            </p>
+            <a href="/products/new" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Ajouter un Produit
+            </a>
+        </div>
+
+        <!-- Pagination -->
+        <nav th:if="${totalPages > 1}" aria-label="Navigation des pages">
+            <ul class="pagination justify-content-center">
+                <!-- Première page -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{/products(page=0, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                
+                <!-- Page précédente -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{/products(page=${currentPage - 1}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                
+                <!-- Pages numérotées -->
+                <li class="page-item" 
+                    th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(0, currentPage - 2), T(java.lang.Math).min(totalPages - 1, currentPage + 2))}"
+                    th:classappend="${pageNum == currentPage} ? 'active'">
+                    <a class="page-link" 
+                       th:href="@{/products(page=${pageNum}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+                       th:text="${pageNum + 1}"></a>
+                </li>
+                
+                <!-- Page suivante -->
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{/products(page=${currentPage + 1}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                
+                <!-- Dernière page -->
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{/products(page=${totalPages - 1}, sortBy=${sortBy}, sortDir=${sortDir}, keyword=${keyword}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Gestion de Produits</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem 0;
+        }
+        
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .register-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .register-form {
+            padding: 2rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .form-control.is-valid {
+            border-color: #28a745;
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+        
+        .strength-weak { background: #dc3545; }
+        .strength-medium { background: #ffc107; }
+        .strength-strong { background: #28a745; }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formes flottantes d'arrière-plan -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="register-container">
+                    <!-- En-tête -->
+                    <div class="register-header">
+                        <h2 class="mb-0">
+                            <i class="bi bi-person-plus"></i> Créer un Compte
+                        </h2>
+                        <p class="mb-0 mt-2">Rejoignez-nous pour gérer vos produits</p>
+                    </div>
+                    
+                    <!-- Formulaire -->
+                    <div class="register-form">
+                        <!-- Messages d'alerte -->
+                        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span th:text="${errorMessage}"></span>
+                        </div>
+                        
+                        <form th:action="@{/register}" th:object="${user}" method="post" novalidate>
+                            <div class="row">
+                                <!-- Prénom -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">
+                                        <i class="bi bi-person"></i> Prénom
+                                    </label>
+                                    <input type="text" class="form-control" 
+                                           th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                           id="firstName" th:field="*{firstName}" 
+                                           placeholder="Votre prénom">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                                </div>
+                                
+                                <!-- Nom -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">
+                                        <i class="bi bi-person"></i> Nom
+                                    </label>
+                                    <input type="text" class="form-control" 
+                                           th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                           id="lastName" th:field="*{lastName}" 
+                                           placeholder="Votre nom">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Nom d'utilisateur -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-at"></i> Nom d'utilisateur <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" 
+                                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                                       id="username" th:field="*{username}" 
+                                       placeholder="Choisissez un nom d'utilisateur" 
+                                       required onchange="checkUsername()">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                                <div class="form-text">3-50 caractères, lettres, chiffres et underscore autorisés</div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope"></i> Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" 
+                                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                                       id="email" th:field="*{email}" 
+                                       placeholder="votre@email.com" 
+                                       required onchange="checkEmail()">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+                            
+                            <!-- Mot de passe -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock"></i> Mot de passe <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control" 
+                                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                                       id="password" th:field="*{password}" 
+                                       placeholder="Choisissez un mot de passe sécurisé" 
+                                       required onkeyup="checkPasswordStrength()">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                                
+                                <!-- Indicateur de force du mot de passe -->
+                                <div class="password-strength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="strengthFill"></div>
+                                    </div>
+                                    <small class="text-muted" id="strengthText">Minimum 6 caractères</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Confirmation du mot de passe -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">
+                                    <i class="bi bi-lock-fill"></i> Confirmer le mot de passe <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control" 
+                                       id="confirmPassword" 
+                                       placeholder="Confirmez votre mot de passe" 
+                                       required onkeyup="checkPasswordMatch()">
+                                <div class="invalid-feedback" id="passwordMatchError"></div>
+                            </div>
+                            
+                            <!-- Conditions d'utilisation -->
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    J'accepte les <a href="#" class="text-decoration-none">conditions d'utilisation</a> 
+                                    et la <a href="#" class="text-decoration-none">politique de confidentialité</a>
+                                </label>
+                            </div>
+                            
+                            <!-- Bouton d'inscription -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-register" id="submitBtn" disabled>
+                                    <i class="bi bi-person-plus"></i> Créer mon compte
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Lien de connexion -->
+                        <div class="text-center mt-3">
+                            <p class="mb-0">Déjà un compte ?</p>
+                            <a href="/login" class="btn btn-outline-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let isUsernameValid = false;
+        let isEmailValid = false;
+        let isPasswordValid = false;
+        let isPasswordMatch = false;
+        let isTermsAccepted = false;
+        
+        // Vérification de la force du mot de passe
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            let strength = 0;
+            let text = '';
+            let className = '';
+            
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            switch (strength) {
+                case 0:
+                case 1:
+                    text = 'Très faible';
+                    className = 'strength-weak';
+                    strengthFill.style.width = '20%';
+                    isPasswordValid = false;
+                    break;
+                case 2:
+                    text = 'Faible';
+                    className = 'strength-weak';
+                    strengthFill.style.width = '40%';
+                    isPasswordValid = password.length >= 6;
+                    break;
+                case 3:
+                    text = 'Moyen';
+                    className = 'strength-medium';
+                    strengthFill.style.width = '60%';
+                    isPasswordValid = true;
+                    break;
+                case 4:
+                    text = 'Fort';
+                    className = 'strength-strong';
+                    strengthFill.style.width = '80%';
+                    isPasswordValid = true;
+                    break;
+                case 5:
+                    text = 'Très fort';
+                    className = 'strength-strong';
+                    strengthFill.style.width = '100%';
+                    isPasswordValid = true;
+                    break;
+            }
+            
+            strengthFill.className = 'strength-fill ' + className;
+            strengthText.textContent = text;
+            
+            checkPasswordMatch();
+            updateSubmitButton();
+        }
+        
+        // Vérification de la correspondance des mots de passe
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('passwordMatchError');
+            const confirmInput = document.getElementById('confirmPassword');
+            
+            if (confirmPassword === '') {
+                confirmInput.classList.remove('is-valid', 'is-invalid');
+                isPasswordMatch = false;
+            } else if (password === confirmPassword) {
+                confirmInput.classList.remove('is-invalid');
+                confirmInput.classList.add('is-valid');
+                errorDiv.textContent = '';
+                isPasswordMatch = true;
+            } else {
+                confirmInput.classList.remove('is-valid');
+                confirmInput.classList.add('is-invalid');
+                errorDiv.textContent = 'Les mots de passe ne correspondent pas';
+                isPasswordMatch = false;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        // Vérification du nom d'utilisateur
+        function checkUsername() {
+            const username = document.getElementById('username').value;
+            const usernameInput = document.getElementById('username');
+            
+            if (username.length >= 3 && username.length <= 50 && /^[a-zA-Z0-9_]+$/.test(username)) {
+                usernameInput.classList.remove('is-invalid');
+                usernameInput.classList.add('is-valid');
+                isUsernameValid = true;
+            } else {
+                usernameInput.classList.remove('is-valid');
+                usernameInput.classList.add('is-invalid');
+                isUsernameValid = false;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        // Vérification de l'email
+        function checkEmail() {
+            const email = document.getElementById('email').value;
+            const emailInput = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(email)) {
+                emailInput.classList.remove('is-invalid');
+                emailInput.classList.add('is-valid');
+                isEmailValid = true;
+            } else {
+                emailInput.classList.remove('is-valid');
+                emailInput.classList.add('is-invalid');
+                isEmailValid = false;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        // Mise à jour du bouton de soumission
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const termsCheckbox = document.getElementById('terms');
+            isTermsAccepted = termsCheckbox.checked;
+            
+            if (isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch && isTermsAccepted) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-secondary');
+                submitBtn.classList.add('btn-success');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.remove('btn-success');
+                submitBtn.classList.add('btn-secondary');
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('terms').addEventListener('change', updateSubmitButton);
+        
+        // Auto-hide alerts après 5 secondes
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
+

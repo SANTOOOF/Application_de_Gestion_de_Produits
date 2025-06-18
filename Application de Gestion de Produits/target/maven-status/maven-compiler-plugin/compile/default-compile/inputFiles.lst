@@ -1,0 +1,15 @@
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/service/CustomUserDetailsService.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/config/SecurityConfig.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/ProductManagementApplication.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/controller/HomeController.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/controller/ProductController.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/service/ProductService.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/controller/api/ProductApiController.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/entity/User.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/config/DataInitializer.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/controller/AdminController.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/repository/UserRepository.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/controller/AuthController.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/entity/Product.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/service/UserService.java
+/home/ubuntu/product-management-app/src/main/java/com/youssef/productmanagement/repository/ProductRepository.java
